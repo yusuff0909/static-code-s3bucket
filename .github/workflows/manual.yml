@@ -19,15 +19,15 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         role-session-name: github-actions-s3-upload
         role-duration-seconds: 3600
         
     - name: Upload files to S3
       run: |
         # Sync files to S3 bucket (change bucket name)
-        aws s3 sync . s3://${{ vars.S3_BUCKET_NAME }}/ \
+        aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }}/ \
           --exclude ".git/*" \
           --exclude ".github/*" \
           --delete
