@@ -1,0 +1,33 @@
+name: Upload to S3 on Push using OIDC
+
+on:
+  push:
+    branches: [ main ] # Change to your default branch if different
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read    # Required to checkout code
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ vars.AWS_REGION }}
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        role-session-name: github-actions-s3-upload
+        role-duration-seconds: 3600
+        
+    - name: Upload files to S3
+      run: |
+        # Sync files to S3 bucket (change bucket name)
+        aws s3 sync . s3://${{ vars.S3_BUCKET_NAME }}/ \
+          --exclude ".git/*" \
+          --exclude ".github/*" \
+          --delete
